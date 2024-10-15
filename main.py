@@ -76,7 +76,7 @@ def choose_delay_range():
     return delay_min, delay_max
 
 # Load
-wallets, private_keys = load_wallets('private_keys.txt')
+wallets, private_keys = load_wallets('wallets.txt')
 proxies_list = load_proxies('proxies.txt')
 abi = load_contract_abi('contract_abi.json')
 
@@ -105,6 +105,10 @@ mode = choose_mode()
 
 # Delay
 delay_min, delay_max = choose_delay_range()
+
+combined = list(zip(wallets, private_keys))
+random.shuffle(combined)
+wallets, private_keys = zip(*combined)
 
 for i, wallet_address in enumerate(wallets):
     # Get api
