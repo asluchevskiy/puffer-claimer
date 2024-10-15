@@ -26,4 +26,5 @@
 
 Если выдает ошибку "IndexError: list index out of range", значит у вас в файле не приватники, а адреса.
 
+
 TG канал: https://t.me/eligible4
