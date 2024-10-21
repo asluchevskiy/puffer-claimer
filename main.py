@@ -28,16 +28,6 @@ def load_wallets(filename, password):
     for _w in _wallets:
         wallets.append(w3.eth.account.from_key(_w).address)
         private_keys.append(_w)
-    # with open(file_path, 'r') as f:
-    #     for line in f.readlines():
-    #         line = line.strip()
-    #         if line.startswith("0x") and len(line) == 42:
-    #             # Wallets
-    #             wallets.append(line)
-    #         else:
-    #             # Private keys
-    #             private_keys.append(line)
-    #             wallets.append(Web3.to_checksum_address(w3.eth.account.from_key(line).address))
     return wallets, private_keys
 
 
