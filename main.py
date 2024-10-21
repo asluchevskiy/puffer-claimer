@@ -1,36 +1,43 @@
+import getpass
 import json
 import random
 import time
 
 import requests
-from web3 import Web3
-from gas_limit import wait_for_gas_sync
 from loguru import logger
+from web3 import Web3
 
+from degensoft.filereader import load_and_decrypt_wallets
+from degensoft.gas_limit import wait_for_gas_sync
 
 MAX_GWAI = 10
 ETHEREUM_RPC_URL = 'https://rpc.ankr.com/eth'
 USE_PROXIES = True
 CLAIM_MODE = True  # False for checker
 DELAYS = (1, 5)  # seconds for delay, from, to
+WALLETS_FILE = "wallets.txt"
 
 
 w3 = Web3(Web3.HTTPProvider(ETHEREUM_RPC_URL))
 
 
-def load_wallets(file_path):
+def load_wallets(filename, password):
     wallets = []
     private_keys = []
-    with open(file_path, 'r') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if line.startswith("0x") and len(line) == 42:
-                # Wallets
-                wallets.append(line)
-            else:
-                # Private keys
-                private_keys.append(line)
-                wallets.append(Web3.to_checksum_address(w3.eth.account.from_key(line).address))
+    _wallets = load_and_decrypt_wallets(filename=filename, password=password)
+    for _w in _wallets:
+        wallets.append(w3.eth.account.from_key(_w).address)
+        private_keys.append(_w)
+    # with open(file_path, 'r') as f:
+    #     for line in f.readlines():
+    #         line = line.strip()
+    #         if line.startswith("0x") and len(line) == 42:
+    #             # Wallets
+    #             wallets.append(line)
+    #         else:
+    #             # Private keys
+    #             private_keys.append(line)
+    #             wallets.append(Web3.to_checksum_address(w3.eth.account.from_key(line).address))
     return wallets, private_keys
 
 
@@ -94,9 +101,11 @@ def choose_delay_range():
         delay_min, delay_max = 10.0, 30.0
     return delay_min, delay_max
 
+# wallets password
+password = getpass.getpass("Введите пароль к кошелькам: ")
 
 # Load
-wallets, private_keys = load_wallets('wallets.txt')
+wallets, private_keys = load_wallets(WALLETS_FILE, password)
 proxies_list = load_proxies('proxies.txt')
 abi = load_contract_abi('contract_abi.json')
 
@@ -105,7 +114,6 @@ campaign_id = "0x5614e2600ab1450f86b97d326f086872"
 
 # Contract
 contract_address = Web3.to_checksum_address("0x5ae97e4770b7034c7ca99ab7edc26a18a23cb412")
-
 
 # API URL
 def get_api_url(wallet_address):

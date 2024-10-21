@@ -1,9 +1,10 @@
 import asyncio
 import random
-import functools
 from logging import Logger
 
 from web3 import AsyncWeb3, AsyncHTTPProvider
+
+from degensoft.utils import force_sync
 
 ETHEREUM_MAINNET_RPC = (
     'https://eth.llamarpc.com',
@@ -11,23 +12,6 @@ ETHEREUM_MAINNET_RPC = (
     'https://rpc.mevblocker.io',
     'https://ethereum.publicnode.com',
 )
-
-
-def force_sync(fn):
-    """
-    force async function to be sync
-    :param fn: callable
-    :return: callable result
-    """
-
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        res = fn(*args, **kwargs)
-        if asyncio.iscoroutine(res):
-            return asyncio.run(res)
-        return res
-
-    return wrapper
 
 
 async def wait_for_gas(max_gwei: int, timeout: int = 60, logger: Logger = None,
